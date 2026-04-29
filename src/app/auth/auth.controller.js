@@ -50,7 +50,7 @@ const handleCallback = async (req, res) => {
 		if (
 			!state ||
 			typeof state !== "string" ||
-			state !== cookies[STATE_COOKIE_NAME]
+			state !== cookies[authService.STATE_COOKIE_NAME]
 		) {
 			return res.status(400).send("Invalid login state.");
 		}
