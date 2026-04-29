@@ -41,17 +41,13 @@ const registerUser = async (req, res) => {
 const handleCallback = async (req, res) => {
 	try {
 		const { code, state } = req.query;
-		const cookies = authService.parseCookies(req);
+		const expectedState = authService.getStateToken(req);
 
 		if (!code || typeof code !== "string") {
 			return res.status(400).send("Missing authorization code.");
 		}
 
-		if (
-			!state ||
-			typeof state !== "string" ||
-			state !== cookies[authService.STATE_COOKIE_NAME]
-		) {
+		if (!state || typeof state !== "string" || state !== expectedState) {
 			return res.status(400).send("Invalid login state.");
 		}
 
@@ -78,7 +74,6 @@ const logoutUser = async (req, res) => {
 	await authService.revokeToken(req);
 	authService.clearCookie(res, req, authService.AUTH_COOKIE_NAME);
 	authService.clearCookie(res, req, authService.STATE_COOKIE_NAME);
-
 	return res.status(200).json({ ok: true });
 };
 

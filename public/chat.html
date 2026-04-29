@@ -180,6 +180,11 @@
 				color: #c9d1d9;
 			}
 
+			.mobile-users-btn,
+			.drawer-close {
+				display: none;
+			}
+
 			#chat {
 				flex: 1 1 auto;
 				min-height: 0;
@@ -482,6 +487,18 @@
 				background: #06080c;
 			}
 
+			.drawer-backdrop {
+				position: fixed;
+				inset: 0;
+				display: none;
+				background: #0009;
+				z-index: 8;
+			}
+
+			.drawer-backdrop.active {
+				display: block;
+			}
+
 			.profile-card,
 			.online-card {
 				border: 1px solid var(--border);
@@ -612,7 +629,21 @@
 				}
 
 				.sidebar {
-					display: none;
+					position: fixed;
+					top: 0;
+					right: 0;
+					bottom: 0;
+					width: min(320px, 86vw);
+					display: flex;
+					z-index: 9;
+					border-left: 1px solid var(--border);
+					box-shadow: -24px 0 60px #000b;
+					transform: translateX(105%);
+					transition: transform 0.22s ease;
+				}
+
+				.sidebar.open {
+					transform: translateX(0);
 				}
 
 				.topbar {
@@ -621,6 +652,29 @@
 
 				.clear-btn {
 					display: none;
+				}
+
+				.logout-btn,
+				.mobile-users-btn,
+				.drawer-close {
+					display: inline-flex;
+				}
+
+				.mobile-users-btn,
+				.drawer-close {
+					width: 34px;
+					height: 34px;
+					align-items: center;
+					justify-content: center;
+					border: 1px solid var(--border);
+					border-radius: 999px;
+					background: #0e1b17;
+					color: #c9d1d9;
+				}
+
+				.drawer-close {
+					align-self: flex-end;
+					margin-bottom: -4px;
 				}
 
 				#chat {
@@ -675,6 +729,14 @@
 							class="status-pill">
 							0 online
 						</div>
+						<button
+							id="mobile-users"
+							class="mobile-users-btn"
+							type="button"
+							title="Online users"
+							aria-label="Online users">
+							☰
+						</button>
 						<button
 							id="clear-chat"
 							class="clear-btn"
@@ -739,7 +801,18 @@
 				</footer>
 			</section>
 
+			<div
+				id="drawer-backdrop"
+				class="drawer-backdrop"></div>
 			<aside class="sidebar">
+				<button
+					id="drawer-close"
+					class="drawer-close"
+					type="button"
+					title="Close"
+					aria-label="Close online users">
+					×
+				</button>
 				<div class="profile-card">
 					<div class="label">BrewChat profile</div>
 					<div id="current-user">Not joined</div>
@@ -771,6 +844,10 @@
 			const roomSubtitle = document.getElementById("room-subtitle");
 			const clearChat = document.getElementById("clear-chat");
 			const logout = document.getElementById("logout");
+			const sidebar = document.querySelector(".sidebar");
+			const mobileUsers = document.getElementById("mobile-users");
+			const drawerClose = document.getElementById("drawer-close");
+			const drawerBackdrop = document.getElementById("drawer-backdrop");
 			const charCount = document.getElementById("char-count");
 			const sentMessages = new Map();
 			let username = "";
@@ -936,6 +1013,11 @@
 				};
 			}
 
+			function setDrawerOpen(open) {
+				sidebar.classList.toggle("open", open);
+				drawerBackdrop.classList.toggle("active", open);
+			}
+
 			const emitTyping = debounce(() => {
 				if (username && msg.value.trim()) {
 					socket.emit("user:typing", { user: username });
@@ -963,6 +1045,10 @@
 				registerBtn.disabled = true;
 				window.location.href = "/auth/register";
 			});
+
+			mobileUsers.addEventListener("click", () => setDrawerOpen(true));
+			drawerClose.addEventListener("click", () => setDrawerOpen(false));
+			drawerBackdrop.addEventListener("click", () => setDrawerOpen(false));
 
 			send.addEventListener("click", sendMessage);
 

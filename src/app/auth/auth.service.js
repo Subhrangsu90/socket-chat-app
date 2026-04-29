@@ -39,13 +39,12 @@ function shouldUseSecureCookies(req) {
 
 function serializeCookie(name, value, options = {}) {
 	const parts = [`${name}=${encodeURIComponent(value)}`];
-
 	if (options.maxAge) parts.push(`Max-Age=${options.maxAge}`);
 	if (options.httpOnly) parts.push("HttpOnly");
 	if (options.secure) parts.push("Secure");
-	if (options.sameSite) parts.push(`SameSite=${options.sameSite}`);
+	// Always set SameSite=Lax for auth cookies
+	parts.push("SameSite=Lax");
 	parts.push(`Path=${options.path || "/"}`);
-
 	return parts.join("; ");
 }
 
@@ -68,22 +67,31 @@ function setCookie(res, req, name, value, maxAge = COOKIE_MAX_AGE_SECONDS) {
 		serializeCookie(name, value, {
 			httpOnly: true,
 			secure: shouldUseSecureCookies(req),
-			sameSite: "None",
 			maxAge,
 		}),
 	);
 }
 
 function clearCookie(res, req, name) {
-	res.append(
-		"Set-Cookie",
-		serializeCookie(name, "", {
-			httpOnly: true,
-			secure: shouldUseSecureCookies(req),
-			sameSite: "None",
-			maxAge: 0,
-		}),
-	);
+	res.clearCookie(name, {
+		httpOnly: true,
+		secure: shouldUseSecureCookies(req),
+		sameSite: "Lax",
+		path: "/",
+	});
+	// res.append(
+	// 	"Set-Cookie",
+	// 	serializeCookie(name, "", {
+	// 		httpOnly: true,
+	// 		secure: shouldUseSecureCookies(req),
+	// 		maxAge: 0,
+	// 	}),
+	// );
+}
+
+function getStateToken(req) {
+	const cookies = parseCookies(req);
+	return cookies[STATE_COOKIE_NAME];
 }
 
 function getAuthToken(req) {
@@ -213,6 +221,7 @@ export {
 	fetchCurrentUser,
 	getDiscoveryMetadata,
 	getAuthToken,
+	getStateToken,
 	parseCookies,
 	revokeToken,
 	setCookie,
