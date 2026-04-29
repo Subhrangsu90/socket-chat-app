@@ -4,7 +4,15 @@ export function setupChatSocket(io) {
 	const maxHistory = 100;
 
 	function getOnlineUsers() {
-		return [...users.entries()].map(([id, name]) => ({ id, name }));
+		return [...users.values()].map((user) => ({
+			id: user.userId,
+			name: user.name,
+			socketId: user.socketId,
+		}));
+	}
+
+	function getSocketUser(socket) {
+		return users.get(socket.id);
 	}
 
 	function emitPresence() {
@@ -20,7 +28,15 @@ export function setupChatSocket(io) {
 				typeof data === "string"
 					? data.trim()
 					: data?.name?.trim() || "Guest";
-			const existingNames = new Set([...users.values()]);
+			const userId =
+				typeof data?.id === "string" && data.id.trim()
+					? data.id.trim()
+					: socket.id;
+			const existingNames = new Set(
+				[...users.values()]
+					.filter((user) => user.userId !== userId)
+					.map((user) => user.name)
+			);
 			const baseName = name;
 			let suffix = 2;
 
@@ -28,12 +44,20 @@ export function setupChatSocket(io) {
 				name = `${baseName}#${suffix++}`;
 			}
 
-			socket.user = { name };
-			users.set(socket.id, name);
+			const user = {
+				userId,
+				socketId: socket.id,
+				name,
+				email: typeof data?.email === "string" ? data.email : undefined,
+				picture: typeof data?.picture === "string" ? data.picture : undefined,
+			};
+
+			socket.user = user;
+			users.set(socket.id, user);
 
 			socket.emit("server:history", {
 				messages,
-				userId: socket.id,
+				userId: user.userId,
 				userName: name,
 			});
 
@@ -48,11 +72,11 @@ export function setupChatSocket(io) {
 		socket.on("user:message", (data) => {
 			if (!users.has(socket.id)) return;
 
-			const user = users.get(socket.id);
+			const user = getSocketUser(socket);
 			const message = {
 				id: data.id,
-				user,
-				userId: socket.id,
+				user: user.name,
+				userId: user.userId,
 				text: data.text,
 				sentAt: data.sentAt || Date.now(),
 			};
@@ -68,10 +92,10 @@ export function setupChatSocket(io) {
 		socket.on("user:clear", () => {
 			if (!users.has(socket.id)) return;
 
-			const user = users.get(socket.id);
+			const user = getSocketUser(socket);
 			messages.length = 0;
 			io.emit("server:clear", {
-				user,
+				user: user.name,
 				at: Date.now(),
 			});
 		});
@@ -81,7 +105,7 @@ export function setupChatSocket(io) {
 
 			socket.broadcast.emit("server:read", {
 				messageId: data.messageId,
-				reader: users.get(socket.id),
+				reader: getSocketUser(socket).name,
 			});
 		});
 
@@ -94,19 +118,19 @@ export function setupChatSocket(io) {
 		socket.on("user:typing", () => {
 			if (!users.has(socket.id)) return;
 
-			const user = users.get(socket.id);
+			const user = getSocketUser(socket);
 			socket.broadcast.emit("server:typing", {
-				user,
+				user: user.name,
 			});
 		});
 
 		socket.on("disconnect", () => {
-			const name = users.get(socket.id);
+			const user = getSocketUser(socket);
 			users.delete(socket.id);
 
-			if (name) {
+			if (user) {
 				socket.broadcast.emit("server:system", {
-					text: `${name} left the chat`,
+					text: `${user.name} left the chat`,
 					type: "leave",
 					at: Date.now(),
 				});

@@ -762,10 +762,12 @@
 			const sentMessages = new Map();
 			let username = "";
 			let currentUserId = "";
+			let currentUserProfile = null;
 			let typingTimeout;
 
 			function createMessageId() {
-				return `${username}-${Date.now()}-${Math.random()
+				const idPrefix = currentUserId || username;
+				return `${idPrefix}-${Date.now()}-${Math.random()
 					.toString(16)
 					.slice(2)}`;
 			}
@@ -928,6 +930,8 @@
 			}, 250);
 
 			function joinChat(user) {
+				currentUserProfile = user;
+				currentUserId = user.sub || user.id || "";
 				username = user.name || user.email || "Guest";
 				currentUser.textContent = username;
 				joinScreen.classList.add("hidden");
@@ -972,7 +976,12 @@
 			});
 
 			socket.on("connect", () => {
-				socket.emit("user:join", { name: username });
+				socket.emit("user:join", {
+					id: currentUserProfile?.sub || currentUserProfile?.id,
+					name: username,
+					email: currentUserProfile?.email,
+					picture: currentUserProfile?.picture,
+				});
 				updateComposer();
 
 				msg.focus();
