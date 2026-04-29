@@ -5,23 +5,18 @@
 		<meta
 			name="viewport"
 			content="width=device-width, initial-scale=1.0" />
-		<title>Advanced Chat App</title>
+		<title>BrewChat</title>
 		<style>
 			:root {
-				--bg: #020304;
-				--panel: #080b10;
-				--panel-2: #0d1118;
-				--panel-3: #121822;
-				--border: #202938;
-				--border-soft: #ffffff10;
-				--fg: #f5f7fb;
-				--muted: #8b949e;
-				--accent: #2f81f7;
-				--accent-soft: #58a6ff;
-				--success: #3fb950;
-				--danger: #f85149;
-				--bubble: #171d27;
-				--self: linear-gradient(135deg, #2382ff 0%, #185bcc 100%);
+				--bg: #07110e;
+				--panel: #0e1b17;
+				--panel-2: #142722;
+				--border: #29443b;
+				--fg: #f6fbf8;
+				--muted: #9db4aa;
+				--brand: #13c98a;
+				--brand-2: #f4b942;
+				--ink: #06120f;
 			}
 
 			* {
@@ -29,1068 +24,217 @@
 			}
 
 			body {
-				height: 100vh;
 				min-height: 100vh;
 				margin: 0;
-				padding: 18px;
 				display: grid;
 				place-items: center;
-				overflow: hidden;
+				padding: 24px;
 				background:
-					radial-gradient(
-						circle at 18% 8%,
-						#152033 0,
-						transparent 30%
-					),
-					radial-gradient(
-						circle at 82% 92%,
-						#071b35 0,
-						transparent 28%
-					),
+					linear-gradient(#ffffff07 1px, transparent 1px),
+					linear-gradient(90deg, #ffffff06 1px, transparent 1px),
+					radial-gradient(circle at 16% 12%, #146c4d 0, transparent 30%),
+					radial-gradient(circle at 86% 80%, #5c4314 0, transparent 26%),
 					var(--bg);
+				background-size:
+					42px 42px,
+					42px 42px,
+					auto,
+					auto,
+					auto;
 				color: var(--fg);
 				font-family: "Segoe UI", Arial, sans-serif;
 			}
 
-			button,
-			input,
-			textarea {
-				font: inherit;
-			}
-
-			textarea::-webkit-scrollbar {
-				display: none;
-			}
-
-			button {
-				cursor: pointer;
-			}
-
-			.app {
-				width: min(980px, 100%);
-				height: min(760px, calc(100vh - 36px));
-				min-height: 620px;
+			.auth-shell {
+				width: min(960px, 100%);
 				display: grid;
-				grid-template-columns: minmax(0, 1fr) 250px;
+				grid-template-columns: minmax(0, 1fr) 360px;
+				border: 1px solid var(--border);
+				border-radius: 24px;
 				overflow: hidden;
-				border: 1px solid #263244;
-				border-radius: 22px;
-				background: linear-gradient(180deg, #0b0f16 0%, #05070a 100%);
-				box-shadow:
-					0 32px 90px #000e,
-					inset 0 1px 0 #ffffff12;
+				background: linear-gradient(135deg, #0b1713 0%, #08100e 100%);
+				box-shadow: 0 32px 90px #000b;
 			}
 
-			.chat-panel {
-				min-width: 0;
-				min-height: 0;
+			.brand-panel {
+				min-height: 520px;
+				padding: 42px;
 				display: flex;
 				flex-direction: column;
-			}
-
-			.topbar {
-				flex: 0 0 auto;
-				display: flex;
-				align-items: center;
 				justify-content: space-between;
-				gap: 16px;
-				padding: 18px 20px;
-				border-bottom: 1px solid var(--border);
-				background: #080b10cc;
+				background:
+					linear-gradient(135deg, #13c98a22, transparent 52%),
+					linear-gradient(315deg, #f4b9421f, transparent 48%);
 			}
 
-			.room-title {
-				display: flex;
+			.logo {
+				display: inline-flex;
 				align-items: center;
 				gap: 12px;
-				min-width: 0;
+				font-weight: 900;
+				font-size: 18px;
 			}
 
-			.room-icon {
+			.logo-mark {
 				width: 42px;
 				height: 42px;
 				display: grid;
 				place-items: center;
 				border-radius: 14px;
-				background: #101827;
-				border: 1px solid var(--border-soft);
-				box-shadow: inset 0 1px 0 #ffffff12;
-				color: var(--accent-soft);
-				font-weight: 800;
+				background: linear-gradient(135deg, var(--brand), var(--brand-2));
+				color: var(--ink);
+				box-shadow: 0 12px 36px #13c98a44;
 			}
 
 			h1 {
+				max-width: 560px;
 				margin: 0;
-				font-size: 18px;
-				line-height: 1.2;
+				font-size: clamp(42px, 7vw, 76px);
+				line-height: 0.95;
 				letter-spacing: 0;
 			}
 
-			.room-subtitle {
-				margin-top: 4px;
+			.brand-copy {
+				max-width: 520px;
+				margin: 18px 0 0;
 				color: var(--muted);
-				font-size: 13px;
+				font-size: 17px;
+				line-height: 1.6;
 			}
 
-			.header-actions {
+			.auth-panel {
 				display: flex;
-				align-items: center;
-				gap: 10px;
+				flex-direction: column;
+				justify-content: center;
+				gap: 18px;
+				padding: 34px;
+				border-left: 1px solid var(--border);
+				background: #08120fdd;
 			}
 
-			.status-pill,
-			.clear-btn {
-				height: 34px;
+			.auth-panel h2 {
+				margin: 0;
+				font-size: 28px;
+				letter-spacing: 0;
+			}
+
+			.auth-panel p {
+				margin: 0;
+				color: var(--muted);
+				line-height: 1.5;
+			}
+
+			.actions {
+				display: grid;
+				gap: 10px;
+				margin-top: 10px;
+			}
+
+			a {
+				height: 48px;
 				display: inline-flex;
 				align-items: center;
-				gap: 8px;
+				justify-content: center;
+				border-radius: 12px;
+				text-decoration: none;
+				font-weight: 850;
+			}
+
+			.primary {
+				background: linear-gradient(135deg, var(--brand), #0ea573);
+				color: var(--ink);
+			}
+
+			.secondary {
 				border: 1px solid var(--border);
-				border-radius: 999px;
-				background: #0b111a;
-				color: var(--muted);
-				padding: 0 12px;
-				font-size: 13px;
-				white-space: nowrap;
-			}
-
-			.status-pill::before {
-				content: "";
-				width: 8px;
-				height: 8px;
-				border-radius: 50%;
-				background: var(--success);
-				box-shadow: 0 0 12px #3fb950aa;
-			}
-
-			.clear-btn {
-				color: #c9d1d9;
-				transition:
-					border 0.2s,
-					color 0.2s,
-					background 0.2s;
-			}
-
-			.clear-btn:hover {
-				border-color: #3b4658;
-				background: #111827;
-				color: #fff;
-			}
-
-			.logout-btn {
-				color: #c9d1d9;
-			}
-
-			#chat {
-				flex: 1 1 auto;
-				min-height: 0;
-				display: flex;
-				flex-direction: column;
-				gap: 12px;
-				overflow-x: hidden;
-				overflow-y: auto;
-				padding: 20px;
-				background:
-					linear-gradient(#ffffff05 1px, transparent 1px),
-					linear-gradient(90deg, #ffffff04 1px, transparent 1px),
-					radial-gradient(
-						circle at top,
-						#111827 0%,
-						#080a0d 38%,
-						#040506 100%
-					);
-				background-size:
-					42px 42px,
-					42px 42px,
-					auto;
-				scrollbar-color: #334052 transparent;
-			}
-
-			#chat::-webkit-scrollbar,
-			.message-text::-webkit-scrollbar {
-				width: 8px;
-			}
-
-			#chat::-webkit-scrollbar-thumb,
-			.message-text::-webkit-scrollbar-thumb {
-				background: #334052;
-				border-radius: 999px;
-			}
-
-			.empty-state {
-				margin: auto;
-				max-width: 330px;
-				text-align: center;
-				color: var(--muted);
-				font-size: 14px;
-				line-height: 1.5;
-			}
-
-			.system-msg {
-				align-self: center;
-				max-width: 80%;
-				padding: 6px 10px;
-				border: 1px solid var(--border-soft);
-				border-radius: 999px;
-				background: #0a0f16cc;
-				color: var(--muted);
-				font-size: 12px;
-			}
-
-			.msg {
-				align-self: flex-start;
-				max-width: min(78%, 560px);
-				padding: 10px 12px 8px;
-				border: 1px solid var(--border-soft);
-				border-radius: 16px 16px 16px 5px;
-				background: var(--bubble);
+				background: var(--panel-2);
 				color: var(--fg);
-				box-shadow: 0 12px 30px #0006;
-				word-break: break-word;
 			}
 
-			.msg.self {
-				align-self: flex-end;
-				border-color: #69b1ff33;
-				border-radius: 16px 16px 5px 16px;
-				background: var(--self);
-				box-shadow: 0 16px 34px #1e70ff35;
-			}
-
-			.msg-head,
-			.msg-meta {
-				display: flex;
-				align-items: center;
-				gap: 8px;
-			}
-
-			.msg.self .msg-head,
-			.msg.self .msg-meta {
-				justify-content: flex-end;
-			}
-
-			.user {
-				color: var(--accent-soft);
-				font-size: 12px;
-				font-weight: 800;
-			}
-
-			.msg.self .user {
-				color: #ffffffd9;
-			}
-
-			.time {
-				color: #aab6c466;
-				font-size: 11px;
-			}
-
-			.msg.self .time {
-				color: #ffffff99;
-			}
-
-			.message-text {
-				display: block;
-				max-height: 190px;
-				overflow-y: auto;
-				margin-top: 5px;
-				padding-right: 3px;
-				color: inherit;
-				font-size: 15px;
-				line-height: 1.45;
-				scrollbar-color: #334052 transparent;
-				white-space: pre-wrap;
-			}
-
-			.msg-meta {
-				margin-top: 6px;
-				min-height: 14px;
-			}
-
-			.message-status {
-				font-size: 12px;
-				font-weight: 800;
-				letter-spacing: -2px;
-				opacity: 0.85;
-				transition: all 0.2s ease;
-			}
-
-			.message-status.sent {
-				color: #aab6c4;
-			}
-
-			.message-status.delivered {
-				color: #cfd9e6;
-			}
-
-			.message-status.read {
-				color: #58a6ff;
-				text-shadow: 0 0 8px #58a6ff90;
-			}
-
-			.typing-bubble {
-				display: none;
-				align-self: flex-start;
-				max-width: 80%;
-				padding: 10px 13px;
-				border: 1px solid var(--border-soft);
-				border-radius: 16px 16px 16px 5px;
-				background: var(--bubble);
-				box-shadow: 0 12px 30px #0006;
-			}
-
-			.typing-bubble.active {
-				display: block;
-			}
-
-			.typing-bubble .user {
-				display: block;
-				margin-bottom: 5px;
-			}
-
-			.typing-wave {
-				display: flex;
-				align-items: center;
-				gap: 4px;
-				height: 14px;
-			}
-
-			.typing-wave span {
-				width: 6px;
-				height: 6px;
-				border-radius: 50%;
-				background: var(--accent-soft);
-				animation: typingWave 0.9s ease-in-out infinite;
-			}
-
-			.typing-wave span:nth-child(2) {
-				animation-delay: 0.12s;
-			}
-
-			.typing-wave span:nth-child(3) {
-				animation-delay: 0.24s;
-			}
-
-			@keyframes typingWave {
-				0%,
-				70%,
-				100% {
-					transform: translateY(0);
-					opacity: 0.55;
-				}
-				35% {
-					transform: translateY(-5px);
-					opacity: 1;
-				}
-			}
-
-			.composer {
-				flex: 0 0 auto;
-				padding: 14px 16px 16px;
-				border-top: 1px solid var(--border);
-				background: #070a0f;
-			}
-
-			.input-shell {
-				display: grid;
-				grid-template-columns: 1fr 46px;
-				gap: 10px;
-				align-items: end;
-				padding: 10px;
-				border: 1px solid var(--border);
-				border-radius: 16px;
-				background: #05070a;
-			}
-
-			#msg {
-				width: 100%;
-				max-height: 120px;
-				resize: none;
-				overflow-y: auto;
-				padding: 11px 12px;
-				border: 1px solid transparent;
-				border-radius: 12px;
-				outline: none;
-				background: #0c1117;
-				color: var(--fg);
-				font-size: 15px;
-				line-height: 1.45;
-				transition:
-					border 0.2s,
-					box-shadow 0.2s,
-					background 0.2s;
-			}
-
-			#msg::placeholder {
-				color: #6e7681;
-			}
-
-			#msg:focus {
-				background: #0f1520;
-				border-color: var(--accent);
-				box-shadow: 0 0 0 3px #2f81f733;
-			}
-
-			#send {
-				width: 46px;
-				height: 46px;
-				display: grid;
-				place-items: center;
-				border: 0;
-				border-radius: 50%;
-				background: linear-gradient(135deg, #2f81f7, #1f6feb);
-				box-shadow: 0 10px 24px #1f6feb40;
-				transition:
-					transform 0.2s,
-					filter 0.2s,
-					box-shadow 0.2s,
-					opacity 0.2s;
-			}
-
-			#send:disabled {
-				cursor: not-allowed;
-				filter: grayscale(0.7);
-				opacity: 0.45;
-				box-shadow: none;
-			}
-
-			#send:not(:disabled):hover {
-				filter: brightness(1.08);
-				transform: translateY(-1px);
-				box-shadow: 0 14px 28px #1f6feb55;
-			}
-
-			#send svg {
-				width: 22px;
-				height: 22px;
-				fill: #fff;
-			}
-
-			.composer-meta {
-				display: flex;
-				justify-content: space-between;
-				gap: 12px;
-				margin: 8px 4px 0;
+			.status {
+				min-height: 20px;
 				color: var(--muted);
-				font-size: 12px;
-			}
-
-			.sidebar {
-				display: flex;
-				flex-direction: column;
-				gap: 16px;
-				padding: 18px;
-				border-left: 1px solid var(--border);
-				background: #06080c;
-			}
-
-			.profile-card,
-			.online-card {
-				border: 1px solid var(--border);
-				border-radius: 18px;
-				background: linear-gradient(180deg, #0d1118, #080b10);
-				padding: 14px;
-				box-shadow: inset 0 1px 0 #ffffff0d;
-			}
-
-			.label {
-				margin-bottom: 9px;
-				color: var(--muted);
-				font-size: 12px;
-				font-weight: 700;
-				text-transform: uppercase;
-			}
-
-			#current-user {
-				font-weight: 800;
-			}
-
-			.online-list {
-				display: flex;
-				flex-direction: column;
-				gap: 8px;
-				margin: 0;
-				padding: 0;
-				list-style: none;
-			}
-
-			.online-list li {
-				display: flex;
-				align-items: center;
-				gap: 8px;
-				min-width: 0;
-				padding: 8px 9px;
-				border: 1px solid #ffffff0b;
-				border-radius: 12px;
-				background: #0b1018;
-				color: #d6dee8;
 				font-size: 13px;
-			}
-
-			.online-list li::before {
-				content: "";
-				width: 8px;
-				height: 8px;
-				flex: 0 0 8px;
-				border-radius: 50%;
-				background: var(--success);
-			}
-
-			.join-screen {
-				position: fixed;
-				inset: 0;
-				display: grid;
-				place-items: center;
-				padding: 20px;
-				background: #020304e6;
-				backdrop-filter: blur(16px);
-				z-index: 5;
-			}
-
-			.join-card {
-				width: min(390px, 100%);
-				padding: 22px;
-				border: 1px solid #263244;
-				border-radius: 22px;
-				background: linear-gradient(180deg, #101722, #070a0f);
-				box-shadow:
-					0 30px 80px #000d,
-					inset 0 1px 0 #ffffff12;
-			}
-
-			.join-card h2 {
-				margin: 0 0 8px;
-				font-size: 24px;
-				letter-spacing: 0;
-			}
-
-			.join-card p {
-				margin: 0 0 18px;
-				color: var(--muted);
-				line-height: 1.5;
-			}
-
-			.join-form {
-				display: grid;
-				gap: 10px;
-			}
-
-			#login-btn {
-				height: 46px;
-				border: 0;
-				border-radius: 12px;
-				background: linear-gradient(135deg, #2f81f7, #1f6feb);
-				color: white;
-				font-weight: 800;
-			}
-
-			.hidden {
-				display: none;
 			}
 
 			@media (max-width: 760px) {
 				body {
 					padding: 0;
-					height: 100dvh;
-					min-height: 100dvh;
 				}
 
-				.app {
-					height: 100dvh;
-					min-height: 0;
+				.auth-shell {
+					min-height: 100vh;
 					grid-template-columns: 1fr;
 					border-radius: 0;
 					border-left: 0;
 					border-right: 0;
 				}
 
-				.sidebar {
-					display: none;
+				.brand-panel {
+					min-height: 380px;
+					padding: 28px;
 				}
 
-				.topbar {
-					padding: 14px;
-				}
-
-				.clear-btn {
-					display: none;
-				}
-
-				#chat {
-					padding: 14px;
-				}
-
-				.msg {
-					max-width: 88%;
+				.auth-panel {
+					border-left: 0;
+					border-top: 1px solid var(--border);
+					padding: 28px;
 				}
 			}
 		</style>
 	</head>
 	<body>
-		<div
-			id="join-screen"
-			class="join-screen">
-			<div class="join-card">
-				<h2>Join the chat</h2>
-				<p>Enter your name to join the room.</p>
-				<form class="join-form">
-					<input
-						id="username-input"
-						type="text"
-						maxlength="24"
-						placeholder="Your name"
-						autocomplete="off"
-						required
-						style="
-							margin-bottom: 10px;
-							padding: 12px 10px;
-							border-radius: 8px;
-							border: 1px solid #263244;
-							background: #0c1117;
-							color: #fff;
-							width: 100%;
-							font-size: 16px;
-						" />
-					<button
-						id="login-btn"
-						type="submit">
-						Join Chat
-					</button>
-				</form>
-			</div>
-		</div>
-
-		<main class="app">
-			<section class="chat-panel">
-				<header class="topbar">
-					<div class="room-title">
-						<div class="room-icon">C</div>
-						<div>
-							<h1>Chai Chat</h1>
-							<div
-								id="room-subtitle"
-								class="room-subtitle">
-								Waiting to join
-							</div>
-						</div>
-					</div>
-					<div class="header-actions">
-						<div
-							id="online-count"
-							class="status-pill">
-							0 online
-						</div>
-						<button
-							id="clear-chat"
-							class="clear-btn"
-							type="button">
-							Clear
-						</button>
-						<button
-							id="logout"
-							class="clear-btn logout-btn"
-							type="button">
-							Logout
-						</button>
-					</div>
-				</header>
-
-				<div id="chat">
-					<div
-						id="empty-state"
-						class="empty-state">
-						No messages yet. Start the conversation when you are
-						ready.
-					</div>
-					<div
-						id="typing-indicator"
-						class="typing-bubble"
-						aria-live="polite">
-						<span
-							id="typing-user"
-							class="user"></span>
-						<div
-							class="typing-wave"
-							aria-label="typing">
-							<span></span>
-							<span></span>
-							<span></span>
-						</div>
-					</div>
+		<main class="auth-shell">
+			<section class="brand-panel">
+				<div class="logo">
+					<div class="logo-mark">B</div>
+					<span>BrewChat</span>
 				</div>
-
-				<footer class="composer">
-					<div class="input-shell">
-						<textarea
-							id="msg"
-							autocomplete="off"
-							maxlength="800"
-							placeholder="Type a message..."></textarea>
-						<button
-							id="send"
-							title="Send"
-							type="button"
-							disabled>
-							<svg viewBox="0 0 24 24">
-								<path
-									d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-							</svg>
-						</button>
-					</div>
-					<div class="composer-meta">
-						<span>Enter to send, Shift + Enter for new line</span>
-						<span id="char-count">0/800</span>
-					</div>
-				</footer>
+				<div>
+					<h1>BrewChat</h1>
+					<p class="brand-copy">
+						A focused real-time room for quick conversations,
+						presence, typing, and read updates.
+					</p>
+				</div>
 			</section>
 
-			<aside class="sidebar">
-				<div class="profile-card">
-					<div class="label">Signed in as</div>
-					<div id="current-user">Not joined</div>
+			<section class="auth-panel">
+				<h2>Welcome back</h2>
+				<p>Sign in with BrewAuth to enter your chat room.</p>
+				<div class="actions">
+					<a
+						class="primary"
+						href="/auth/login">
+						Sign in with BrewAuth
+					</a>
+					<a
+						class="secondary"
+						href="/auth/register">
+						Create account
+					</a>
 				</div>
-				<div class="online-card">
-					<div class="label">Online now</div>
-					<ul
-						id="online-list"
-						class="online-list"></ul>
-				</div>
-			</aside>
+				<div
+					id="status"
+					class="status"></div>
+			</section>
 		</main>
 
-		<script src="/socket.io/socket.io.js"></script>
 		<script>
-			const socket = io({ autoConnect: false });
-			const chat = document.getElementById("chat");
-			const emptyState = document.getElementById("empty-state");
-			const msg = document.getElementById("msg");
-			const send = document.getElementById("send");
-			const typingIndicator = document.getElementById("typing-indicator");
-			const typingUser = document.getElementById("typing-user");
-			const joinScreen = document.getElementById("join-screen");
-			const loginBtn = document.getElementById("login-btn");
-			const currentUser = document.getElementById("current-user");
-			const onlineCount = document.getElementById("online-count");
-			const onlineList = document.getElementById("online-list");
-			const roomSubtitle = document.getElementById("room-subtitle");
-			const clearChat = document.getElementById("clear-chat");
-			const logout = document.getElementById("logout");
-			const charCount = document.getElementById("char-count");
-			const sentMessages = new Map();
-			let username = "";
-			let currentUserId = "";
-			let typingTimeout;
-
-			function createMessageId() {
-				return `${username}-${Date.now()}-${Math.random()
-					.toString(16)
-					.slice(2)}`;
-			}
-
-			function formatTime(time) {
-				return new Intl.DateTimeFormat([], {
-					hour: "2-digit",
-					minute: "2-digit",
-				}).format(new Date(time));
-			}
-
-			function hideEmptyState() {
-				emptyState.classList.add("hidden");
-			}
-
-			function scrollToBottom() {
-				chat.scrollTop = chat.scrollHeight;
-			}
-
-			function updateComposer() {
-				const length = msg.value.length;
-				charCount.textContent = `${length}/800`;
-				send.disabled = !msg.value.trim() || !username;
-			}
-
-			function appendSystemMessage(text, at = Date.now()) {
-				hideEmptyState();
-				const div = document.createElement("div");
-				div.className = "system-msg";
-				div.textContent = `${text} • ${formatTime(at)}`;
-				chat.insertBefore(div, typingIndicator);
-				scrollToBottom();
-			}
-			function setMessageStatus(span, status) {
-				span.className = `message-status ${status}`;
-
-				if (status === "sent") {
-					span.textContent = "✓";
-					span.title = "Sent";
-				} else if (status === "delivered") {
-					span.textContent = "✓✓";
-					span.title = "Delivered";
-				} else if (status === "read") {
-					span.textContent = "✓✓";
-					span.title = "Read";
-				}
-			}
-			function appendMessage({
-				id,
-				text,
-				user,
-				self = false,
-				sentAt = Date.now(),
-			}) {
-				hideEmptyState();
-				const div = document.createElement("div");
-				div.className = `msg${self ? " self" : ""}`;
-				if (id) div.dataset.messageId = id;
-
-				const head = document.createElement("div");
-				head.className = "msg-head";
-
-				const userSpan = document.createElement("span");
-				userSpan.className = "user";
-				userSpan.textContent = self ? "You" : user;
-				head.appendChild(userSpan);
-
-				const timeSpan = document.createElement("span");
-				timeSpan.className = "time";
-				timeSpan.textContent = formatTime(sentAt);
-				head.appendChild(timeSpan);
-
-				const textSpan = document.createElement("span");
-				textSpan.className = "message-text";
-				textSpan.textContent = text;
-
-				div.appendChild(head);
-				div.appendChild(textSpan);
-
-				if (self && id) {
-					const meta = document.createElement("div");
-					meta.className = "msg-meta";
-					const statusSpan = document.createElement("span");
-					statusSpan.className = "message-status";
-					setMessageStatus(statusSpan, "sent");
-					meta.appendChild(statusSpan);
-					div.appendChild(meta);
-					sentMessages.set(id, statusSpan);
-				}
-
-				chat.insertBefore(div, typingIndicator);
-				scrollToBottom();
-			}
-
-			function markMessageRead(messageId) {
-				const span = sentMessages.get(messageId);
-				if (!span) return;
-
-				setMessageStatus(span, "read");
-			}
-
-			function clearMessages(showEmpty = true) {
-				[...chat.children].forEach((child) => {
-					if (child !== typingIndicator && child !== emptyState)
-						child.remove();
-				});
-				sentMessages.clear();
-				if (showEmpty) {
-					emptyState.classList.remove("hidden");
-				}
-			}
-
-			function sendMessage() {
-				const text = msg.value.trim();
-				if (!text || !username) return;
-
-				const id = createMessageId();
-				const sentAt = Date.now();
-				socket.emit("user:message", {
-					id,
-					user: username,
-					text,
-					sentAt,
-				});
-				appendMessage({ id, text, user: username, self: true, sentAt });
-				msg.value = "";
-				typingIndicator.classList.remove("active");
-				updateComposer();
-				msg.focus();
-			}
-
-			function renderPresence(users = []) {
-				onlineCount.textContent = `${users.length} online`;
-				roomSubtitle.textContent = username
-					? `${users.length} people in the room`
-					: "Waiting to join";
-				onlineList.innerHTML = "";
-				users.forEach((user) => {
-					const li = document.createElement("li");
-					li.textContent =
-						user.id === currentUserId
-							? `${user.name} (you)`
-							: user.name;
-					onlineList.appendChild(li);
-				});
-			}
-
-			function debounce(func, delay) {
-				let timeout;
-				return function (...args) {
-					clearTimeout(timeout);
-					timeout = setTimeout(() => func.apply(this, args), delay);
-				};
-			}
-
-			const emitTyping = debounce(() => {
-				if (username && msg.value.trim()) {
-					socket.emit("user:typing", { user: username });
-				}
-			}, 250);
-
-			function joinChat(user) {
-				username = user.name;
-				currentUser.textContent = username;
-				joinScreen.classList.add("hidden");
-				socket.connect();
-			}
-
-			const usernameInput = document.getElementById("username-input");
-			document
-				.querySelector(".join-form")
-				.addEventListener("submit", (e) => {
-					e.preventDefault();
-					const name = usernameInput.value.trim();
-					if (!name) {
-						usernameInput.focus();
-						return;
+			fetch("/auth/me")
+				.then((response) => {
+					if (!response.ok) return null;
+					return response.json();
+				})
+				.then((data) => {
+					if (data?.authenticated) {
+						window.location.href = "/chat";
 					}
-					loginBtn.disabled = true;
-					joinChat({ name });
+				})
+				.catch(() => {
+					document.getElementById("status").textContent =
+						"Sign in when you are ready.";
 				});
-
-			send.addEventListener("click", sendMessage);
-
-			msg.addEventListener("keydown", (e) => {
-				if (e.key === "Enter" && !e.shiftKey) {
-					e.preventDefault();
-					sendMessage();
-				}
-			});
-
-			msg.addEventListener("input", () => {
-				updateComposer();
-				emitTyping();
-			});
-
-			clearChat.addEventListener("click", () => {
-				if (!username) return;
-				socket.emit("user:clear");
-			});
-
-			logout.addEventListener("click", async () => {
-				await fetch("/auth/logout", { method: "POST" });
-				window.location.href = "/";
-			});
-
-			socket.on("connect", () => {
-				socket.emit("user:join", { name: username });
-				updateComposer();
-
-				msg.focus();
-			});
-
-			socket.on("connect_error", () => {
-				username = "";
-				currentUserId = "";
-				currentUser.textContent = "Not joined";
-				joinScreen.classList.remove("hidden");
-				roomSubtitle.textContent = "Sign in to join";
-				updateComposer();
-			});
-
-			socket.on("server:history", (data) => {
-				clearMessages(!data.messages.length);
-				if (data.userId) currentUserId = data.userId;
-				if (data.userName) {
-					username = data.userName;
-					currentUser.textContent = username;
-					appendSystemMessage(`You joined as ${username}`);
-				}
-				data.messages.forEach((message) => {
-					appendMessage({
-						id: message.id,
-						text: message.text,
-						user: message.user,
-						self: message.userId === currentUserId,
-						sentAt: message.sentAt,
-					});
-					if (message.userId !== currentUserId) {
-						socket.emit("user:read", {
-							messageId: message.id,
-							reader: username,
-						});
-					}
-				});
-			});
-
-			socket.on("server:message", (data) => {
-				if (!username) return;
-				if (data.userId !== currentUserId) {
-					appendMessage({
-						id: data.id,
-						text: data.text,
-						user: data.user,
-						sentAt: data.sentAt,
-					});
-					socket.emit("user:delivered", {
-						messageId: data.id,
-					});
-					socket.emit("user:read", {
-						messageId: data.id,
-						reader: username,
-					});
-				}
-			});
-
-			socket.on("server:read", (data) => {
-				markMessageRead(data.messageId);
-			});
-
-			socket.on("server:delivered", (data) => {
-				const span = sentMessages.get(data.messageId);
-				if (!span) return;
-				console.log("Delivered", data);
-
-				setMessageStatus(span, "delivered");
-			});
-
-			socket.on("server:typing", (data) => {
-				if (!username || data.user === username) return;
-				typingUser.textContent = data.user;
-				typingIndicator.classList.add("active");
-				scrollToBottom();
-				clearTimeout(typingTimeout);
-				typingTimeout = setTimeout(() => {
-					typingIndicator.classList.remove("active");
-				}, 1100);
-			});
-
-			socket.on("server:presence", (data) => {
-				renderPresence(data.users);
-			});
-
-			socket.on("server:system", (data) => {
-				appendSystemMessage(data.text, data.at);
-			});
-
-			socket.on("server:clear", (data) => {
-				clearMessages();
-				appendSystemMessage(`${data.user} cleared the chat`, data.at);
-			});
-
-			function init() {
-				roomSubtitle.textContent = "Enter your name to join";
-				updateComposer();
-				usernameInput.focus();
-			}
-
-			updateComposer();
-			init();
 		</script>
 	</body>
 </html>
