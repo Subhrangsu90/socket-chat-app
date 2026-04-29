@@ -50,7 +50,7 @@ const handleCallback = async (req, res) => {
 		if (
 			!state ||
 			typeof state !== "string" ||
-			state !== cookies[authService.STATE_COOKIE_NAME]
+			state !== cookies[STATE_COOKIE_NAME]
 		) {
 			return res.status(400).send("Invalid login state.");
 		}
@@ -64,6 +64,7 @@ const handleCallback = async (req, res) => {
 			tokenResponse.access_token,
 			tokenResponse.expires_in,
 		);
+
 		authService.clearCookie(res, req, authService.STATE_COOKIE_NAME);
 
 		return res.redirect("/chat");
