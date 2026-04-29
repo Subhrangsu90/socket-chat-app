@@ -68,7 +68,7 @@ function setCookie(res, req, name, value, maxAge = COOKIE_MAX_AGE_SECONDS) {
 		serializeCookie(name, value, {
 			httpOnly: true,
 			secure: shouldUseSecureCookies(req),
-			sameSite: "Lax",
+			sameSite: "None",
 			maxAge,
 		}),
 	);
@@ -80,7 +80,7 @@ function clearCookie(res, req, name) {
 		serializeCookie(name, "", {
 			httpOnly: true,
 			secure: shouldUseSecureCookies(req),
-			sameSite: "Lax",
+			sameSite: "None",
 			maxAge: 0,
 		}),
 	);
@@ -134,7 +134,8 @@ async function getDiscoveryMetadata() {
 
 async function exchangeCodeForToken(req, code) {
 	const metadata = await getDiscoveryMetadata();
-	const tokenEndpoint = metadata.token_endpoint || `${getIssuer()}/auth/token`;
+	const tokenEndpoint =
+		metadata.token_endpoint || `${getIssuer()}/auth/token`;
 
 	const response = await fetch(tokenEndpoint, {
 		method: "POST",
