@@ -306,16 +306,24 @@
 			}
 
 			.message-status {
-				color: #d6e0ea99;
 				font-size: 12px;
 				font-weight: 800;
 				letter-spacing: -2px;
-				line-height: 1;
+				opacity: 0.85;
+				transition: all 0.2s ease;
+			}
+
+			.message-status.sent {
+				color: #aab6c4;
+			}
+
+			.message-status.delivered {
+				color: #cfd9e6;
 			}
 
 			.message-status.read {
-				color: #9bd1ff;
-				text-shadow: 0 0 10px #58a6ff90;
+				color: #58a6ff;
+				text-shadow: 0 0 8px #58a6ff90;
 			}
 
 			.typing-bubble {
@@ -565,17 +573,7 @@
 				gap: 10px;
 			}
 
-			#name-input {
-				height: 46px;
-				border: 1px solid var(--border);
-				border-radius: 12px;
-				outline: none;
-				background: #080d14;
-				color: var(--fg);
-				padding: 0 13px;
-			}
-
-			#join-btn {
+			#login-btn {
 				height: 46px;
 				border: 0;
 				border-radius: 12px;
@@ -632,12 +630,29 @@
 			class="join-screen">
 			<div class="join-card">
 				<h2>Join the chat</h2>
-				<p>Sign in with your account before entering the room.</p>
+				<p>Enter your name to join the room.</p>
 				<form class="join-form">
+					<input
+						id="username-input"
+						type="text"
+						maxlength="24"
+						placeholder="Your name"
+						autocomplete="off"
+						required
+						style="
+							margin-bottom: 10px;
+							padding: 12px 10px;
+							border-radius: 8px;
+							border: 1px solid #263244;
+							background: #0c1117;
+							color: #fff;
+							width: 100%;
+							font-size: 16px;
+						" />
 					<button
 						id="login-btn"
 						type="submit">
-						Sign in to chat
+						Join Chat
 					</button>
 				</form>
 			</div>
@@ -761,6 +776,7 @@
 			const charCount = document.getElementById("char-count");
 			const sentMessages = new Map();
 			let username = "";
+			let currentUserId = "";
 			let typingTimeout;
 
 			function createMessageId() {
@@ -788,8 +804,6 @@
 				const length = msg.value.length;
 				charCount.textContent = `${length}/800`;
 				send.disabled = !msg.value.trim() || !username;
-				// msg.style.height = "44px";
-				// msg.style.height = `${Math.min(Math.max(msg.scrollHeight, 44), 120)}px`;
 			}
 
 			function appendSystemMessage(text, at = Date.now()) {
@@ -800,7 +814,20 @@
 				chat.insertBefore(div, typingIndicator);
 				scrollToBottom();
 			}
+			function setMessageStatus(span, status) {
+				span.className = `message-status ${status}`;
 
+				if (status === "sent") {
+					span.textContent = "✓";
+					span.title = "Sent";
+				} else if (status === "delivered") {
+					span.textContent = "✓✓";
+					span.title = "Delivered";
+				} else if (status === "read") {
+					span.textContent = "✓✓";
+					span.title = "Read";
+				}
+			}
 			function appendMessage({
 				id,
 				text,
@@ -838,8 +865,7 @@
 					meta.className = "msg-meta";
 					const statusSpan = document.createElement("span");
 					statusSpan.className = "message-status";
-					statusSpan.textContent = "✓✓";
-					statusSpan.title = "Delivered";
+					setMessageStatus(statusSpan, "sent");
 					meta.appendChild(statusSpan);
 					div.appendChild(meta);
 					sentMessages.set(id, statusSpan);
@@ -850,10 +876,10 @@
 			}
 
 			function markMessageRead(messageId) {
-				const statusSpan = sentMessages.get(messageId);
-				if (!statusSpan) return;
-				statusSpan.classList.add("read");
-				statusSpan.title = "Read";
+				const span = sentMessages.get(messageId);
+				if (!span) return;
+
+				setMessageStatus(span, "read");
 			}
 
 			function clearMessages(showEmpty = true) {
@@ -892,11 +918,10 @@
 					? `${users.length} people in the room`
 					: "Waiting to join";
 				onlineList.innerHTML = "";
-
 				users.forEach((user) => {
 					const li = document.createElement("li");
 					li.textContent =
-						user.name === username
+						user.id === currentUserId
 							? `${user.name} (you)`
 							: user.name;
 					onlineList.appendChild(li);
@@ -924,11 +949,19 @@
 				socket.connect();
 			}
 
-			document.querySelector(".join-form").addEventListener("submit", (e) => {
-				e.preventDefault();
-				loginBtn.disabled = true;
-				window.location.href = "/auth/login";
-			});
+			const usernameInput = document.getElementById("username-input");
+			document
+				.querySelector(".join-form")
+				.addEventListener("submit", (e) => {
+					e.preventDefault();
+					const name = usernameInput.value.trim();
+					if (!name) {
+						usernameInput.focus();
+						return;
+					}
+					loginBtn.disabled = true;
+					joinChat({ name });
+				});
 
 			send.addEventListener("click", sendMessage);
 
@@ -955,14 +988,15 @@
 			});
 
 			socket.on("connect", () => {
-				socket.emit("user:join");
-				appendSystemMessage(`You joined as ${username}`);
+				socket.emit("user:join", { name: username });
 				updateComposer();
+
 				msg.focus();
 			});
 
 			socket.on("connect_error", () => {
 				username = "";
+				currentUserId = "";
 				currentUser.textContent = "Not joined";
 				joinScreen.classList.remove("hidden");
 				roomSubtitle.textContent = "Sign in to join";
@@ -971,16 +1005,21 @@
 
 			socket.on("server:history", (data) => {
 				clearMessages(!data.messages.length);
+				if (data.userId) currentUserId = data.userId;
+				if (data.userName) {
+					username = data.userName;
+					currentUser.textContent = username;
+					appendSystemMessage(`You joined as ${username}`);
+				}
 				data.messages.forEach((message) => {
 					appendMessage({
 						id: message.id,
 						text: message.text,
 						user: message.user,
-						self: message.user === username,
+						self: message.userId === currentUserId,
 						sentAt: message.sentAt,
 					});
-
-					if (message.user !== username) {
+					if (message.userId !== currentUserId) {
 						socket.emit("user:read", {
 							messageId: message.id,
 							reader: username,
@@ -991,12 +1030,15 @@
 
 			socket.on("server:message", (data) => {
 				if (!username) return;
-				if (data.user !== username) {
+				if (data.userId !== currentUserId) {
 					appendMessage({
 						id: data.id,
 						text: data.text,
 						user: data.user,
 						sentAt: data.sentAt,
+					});
+					socket.emit("user:delivered", {
+						messageId: data.id,
 					});
 					socket.emit("user:read", {
 						messageId: data.id,
@@ -1007,6 +1049,14 @@
 
 			socket.on("server:read", (data) => {
 				markMessageRead(data.messageId);
+			});
+
+			socket.on("server:delivered", (data) => {
+				const span = sentMessages.get(data.messageId);
+				if (!span) return;
+				console.log("Delivered", data);
+
+				setMessageStatus(span, "delivered");
 			});
 
 			socket.on("server:typing", (data) => {
@@ -1033,21 +1083,10 @@
 				appendSystemMessage(`${data.user} cleared the chat`, data.at);
 			});
 
-			async function init() {
-				try {
-					const response = await fetch("/api/me");
-					const data = await response.json();
-					if (data.user) {
-						joinChat(data.user);
-						return;
-					}
-				} catch {
-					// Keep the sign-in screen visible if the session check fails.
-				}
-
-				roomSubtitle.textContent = "Sign in to join";
+			function init() {
+				roomSubtitle.textContent = "Enter your name to join";
 				updateComposer();
-				loginBtn.focus();
+				usernameInput.focus();
 			}
 
 			updateComposer();
