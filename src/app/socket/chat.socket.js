@@ -4,11 +4,21 @@ export function setupChatSocket(io) {
 	const maxHistory = 100;
 
 	function getOnlineUsers() {
-		return [...users.values()].map((user) => ({
-			id: user.userId,
-			name: user.name,
-			socketId: user.socketId,
-		}));
+		const onlineUsers = new Map();
+
+		for (const user of users.values()) {
+			if (!onlineUsers.has(user.userId)) {
+				onlineUsers.set(user.userId, {
+					id: user.userId,
+					name: user.name,
+					connections: 0,
+				});
+			}
+
+			onlineUsers.get(user.userId).connections += 1;
+		}
+
+		return [...onlineUsers.values()];
 	}
 
 	function getSocketUser(socket) {

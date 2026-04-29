@@ -37,8 +37,16 @@
 				place-items: center;
 				overflow: hidden;
 				background:
-					radial-gradient(circle at 18% 8%, #146c4d 0, transparent 30%),
-					radial-gradient(circle at 82% 92%, #5c4314 0, transparent 28%),
+					radial-gradient(
+						circle at 18% 8%,
+						#146c4d 0,
+						transparent 30%
+					),
+					radial-gradient(
+						circle at 82% 92%,
+						#5c4314 0,
+						transparent 28%
+					),
 					var(--bg);
 				color: var(--fg);
 				font-family: "Segoe UI", Arial, sans-serif;
@@ -184,7 +192,12 @@
 				background:
 					linear-gradient(#ffffff05 1px, transparent 1px),
 					linear-gradient(90deg, #ffffff04 1px, transparent 1px),
-					radial-gradient(circle at top, #10251f 0%, #091511 42%, #050907 100%);
+					radial-gradient(
+						circle at top,
+						#10251f 0%,
+						#091511 42%,
+						#050907 100%
+					);
 				background-size:
 					42px 42px,
 					42px 42px,
@@ -1047,7 +1060,6 @@
 			socket.on("server:delivered", (data) => {
 				const span = sentMessages.get(data.messageId);
 				if (!span) return;
-				console.log("Delivered", data);
 
 				setMessageStatus(span, "delivered");
 			});

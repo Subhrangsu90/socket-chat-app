@@ -33,7 +33,6 @@ async function main() {
 	setupChatSocket(io);
 
 	const port = Number(process.env.PORT || 9000);
-	console.log(process.env);
 
 	server.listen(port, () => {
 		console.log(`Server is listening on port ${port}`);
